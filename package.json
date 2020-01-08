@@ -1,0 +1,24 @@
+{
+  "name": "wax-catcher",
+  "version": "1.0.0",
+  "description": "Simple catcher game made on javascript that uses WAX NFT's as cosmetic items",
+  "main": "index.js",
+  "dependencies": {
+    "serve": "^11.3.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+	"serve": "serve -l 4321"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/camposg/wax-catcher.git"
+  },
+  "author": "CamposG",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/camposg/wax-catcher/issues"
+  },
+  "homepage": "https://github.com/camposg/wax-catcher#readme"
+}
