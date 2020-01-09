@@ -1,0 +1,3 @@
+<IfModule mod_headers.c>
+Header set Strict-Transport-Security "max-age=0; includeSubDomains; preload" env=HTTPS
+</IfModule>
