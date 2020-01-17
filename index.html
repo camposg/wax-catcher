@@ -1,130 +1,122 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <script src="https://cdn.jsdelivr.net/npm/phaser@3.21.0/dist/phaser-arcade-physics.min.js"></script>
+<head>  	
+	<script src="js/waxjs.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/phaser@3.21.0/dist/phaser-arcade-physics.min.js"></script>
 	<style>
+		html {
+			height: 100%;		
+		}
 		body {
 			width: 100%;	
 			height: 100%;
 			margin: 0;
 			padding: 0;
 			background-color: black;
+			display: flex;
+			overflow: hidden;
+			font-family: sans-serif !important;
+		}
+		.main_title {
+			color: #eee;
+			font-size: 34px;
+			margin-bottom: 20px;
+		}
+		.main_menu_button {
+			border: 2px solid #eee;
+			background-color: #121212;
+			border-radius: 5px;
+			color: #eee;
+			padding: 6px 20px;
+			font-size: 26px;
+			cursor: pointer;
+			width: 136px;
+			display: inline-block;
+			text-decoration: none;
+			margin-bottom: 12px;
+		}
+		.main_menu_button:hover {
+			background-color: #000;
+		}
+		.main_menu {
+			margin: auto;
+			width: 300px;
+			min-height: 400px;
+			background-color: #121212;
+			border-radius: 10px;
+			vertical-align: middle;
+			text-align: center;	
+			padding: 10px 2px;		
+		}
+		#login_info {
+			color: #ccc;
+			font-size: 18px;
+			margin-bottom: 20px;
+			padding: 0 25px;
+			min-height: 42px;
+			display: none;
+		}
+		#login_button {
+			text-decoration: underline;
+			cursor: pointer;
+		}
+		#user_info {
+			color: #ccc;
+			font-size: 18px;
+			margin-bottom: 20px;
+			padding: 0 25px;
+			min-height: 35px;
+			padding-top: 7px;		
 		}
 	</style>
 </head>
 
 <body>
+	<div id="main_menu" class="main_menu">
+		<h1 class="main_title">WAX Catcher</h1>
+		<div id="login_info"><a id="login_button" onclick="login()">Login with WAX Cloud Wallet</a> to use your skins!</div>
+		<div id="user_info"></div>
+		<a class="main_menu_button" onclick="loadGame()">Play</a>
+		<a class="main_menu_button" href="https://wax.simplemarket.io/account/available-assets" target="_blank">My Skins</a>
+		<a class="main_menu_button" href="https://wax.simplemarket.io/products?skip=0&limit=30&authors=waxgamesnfts" target="_blank">Buy Skins</a>
+		<a class="main_menu_button" href="#">About</a>
+	</div>
+</body>
+
 <script>
-	const width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-	const height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-	var config = {
-		type: Phaser.AUTO,
-		width: width,
-		height: height,
-		 scale: {
-			mode: Phaser.Scale.WIDTH_CONTROLS_HEIGHT,
-			autoCenter: Phaser.Scale.CENTER_HORIZONTALLY 
-		},
-		physics: {
-		default: 'arcade',
-			arcade: {
-				gravity: { y: 300 },
-				debug: false
-			}
-		},
-		scene: {
-			preload: preload,
-			create: create,
-			update: update
-		}
-	};
+	const wax = new waxjs.WaxJS('https://wax.greymass.com', null, null, false);
 
-	var game = new Phaser.Game(config);
-	var engine;
-	var score;
-	var maxScore;
-	var bottomLine;
-	var lastSpawnTime = 0;
-	var spawnFrequency = 1000;
-	var waxCaught = 0;
-	var maxWaxCaught = 0;
-	
-	function preload () {
-		this.load.image('wax', 'assets/wax_sticker.png');
-		this.load.image('ground', 'assets/ground.png');
+	preLogin();
+
+	async function preLogin() {
+		var isAutoLoginAvailable = await wax.isAutoLoginAvailable();
+		if (isAutoLoginAvailable) {
+			login();
+		} else {
+			document.getElementById("login_info").style.display = "block";
+			document.getElementById("user_info").style.display = "none";
+		}
 	}
 
-	function create () {
-		engine = this;
-		ground = this.physics.add.staticGroup();
-		ground.create(0, height + 10, 'ground').setScale(4).refreshBody();
-		score = this.add.text(15, height - 75, '', { font: '60px Arial Bold', fill: '#FFFFFF' });
-		maxScore = this.add.text(15, height - 120, '', { font: '40px Arial Bold', fill: '#999999' });
-	}
-
-	function update (time) {
-		var diff = time - lastSpawnTime;
-		if (diff > spawnFrequency) {
-		  lastSpawnTime = time;
-		  if (spawnFrequency > 800) {
-			spawnFrequency = spawnFrequency - 40;
-		  } else if (spawnFrequency > 600) {
-			spawnFrequency = spawnFrequency - 20;
-		  } else if (spawnFrequency > 400) {
-			spawnFrequency = spawnFrequency - 5;
-		  } else if (spawnFrequency > 100) {
-			spawnFrequency = spawnFrequency - 1;
-		  }			  
-		  spawnWax();
-		}
-		score.text = waxCaught;
-		if (maxWaxCaught > 0) {
-			maxScore.text = 'MAX: ' + maxWaxCaught;
+	async function login() {
+		try {
+			const userAccount = await wax.login();
+			document.getElementById("login_info").style.display = "none";
+			document.getElementById("user_info").innerHTML = "<span>Welcome <strong>" + userAccount + "</strong>!</span>";
+			document.getElementById("user_info").style.display = "block";
+		} catch(e) {
+			console.log(e.message);
 		}
 	}
-	
-	function onCaught(wax) {
-		return function () {
-			wax.setTint(0xffaaaa);
-			wax.setVelocity(0, 0);
-			waxCaught++;
-			engine.time.delayedCall(250, function (wax) {
-				wax.destroy();
-			}, [wax], this);
-		}
-	}
-	
-	function gameOver(wax) {
-		return function () {
-			wax.setTint(0xdd5555);	
-			engine.scene.pause();	
-			engine.scene.resume();
-			engine.time.delayedCall(100, function (wax) {
-				if (maxWaxCaught < waxCaught) {
-					maxWaxCaught = waxCaught;
-				}
-				waxCaught = 0;
-				spawnFrequency = 1000;
-				engine.scene.restart();	
-			}, [wax], this);
-		}
-	}
-	
-	function spawnWax() {
-		var wax;
-		var x = Phaser.Math.Between(100, width - 100);
-		var y = -100;
-		wax = engine.physics.add.image(x, y, 'wax');
-		wax.setDisplaySize(width * height * 0.00012, width * height * 0.00012);
-		var extraSpeed = 0;
-		if ((height - width) > 0) {
-			extraSpeed = (height - width) / 1.5;
-		}
-		wax.setVelocity(0, 200 + extraSpeed);
-		wax.setInteractive();
-		wax.on('pointerdown', onCaught(wax), this);
-		engine.physics.add.collider(wax, ground, gameOver(wax), null, this);
+  
+	function loadGame() {
+		console.log('aa');
+		var fileref = document.createElement('script');
+		fileref.setAttribute("type","text/javascript");
+		fileref.setAttribute("src", "js/game.js");
+		document.getElementsByTagName("head")[0].appendChild(fileref);
+		document.getElementById("main_menu").style.display = "none";
 	}
 </script>
-</body>
+
 </html>
