@@ -1,6 +1,15 @@
 	var engine;
 	var game;
 	
+	function setupCanvas(canvas) {
+		var dpr = window.devicePixelRatio || 1;
+		var rect = canvas.getBoundingClientRect();
+		canvas.width = rect.width * dpr;
+		canvas.height = rect.height * dpr;
+		var ctx = canvas.getContext('2d') || canvas.getContext('webgl');
+		ctx.scale(dpr, dpr);
+	}
+	
 	async function loadNfts() {
 		let response = await fetch('https://chain.wax.io/v1/chain/get_table_rows', {
 			method: 'POST',
@@ -72,7 +81,7 @@
 			} else {
 				this.load.image('object_1', 'assets/wax_sticker.png');
 			}				
-			this.load.image('ground', 'assets/ground.png');
+			this.load.image('ground', 'assets/ground.png');		
 		}
 
 		function create () {
@@ -81,6 +90,9 @@
 			ground.create(0, height + 10, 'ground').setScale(4).refreshBody();
 			score = this.add.text(15, height - 70, '', { font: '50px Arial Bold', fill: '#FFFFFF' });
 			maxScore = this.add.text(15, height - 100, '', { font: '25px Arial Bold', fill: '#999999' });
+			
+			var canvasElement = document.getElementsByTagName("canvas")[0];
+			setupCanvas(canvasElement);
 		}
 
 		function update (time) {
@@ -148,7 +160,8 @@
 			wax.setDisplaySize(sizeWidth, sizeHeight);
 			var extraSpeed = 0;
 			if ((height - width) > 0) {
-				//extraSpeed = (height - width) / 1.5;
+				extraSpeed = (height - width) / 10;
+				console.log(extraSpeed);
 			}
 			wax.setVelocity(0, 200 + extraSpeed);
 			wax.setInteractive();
