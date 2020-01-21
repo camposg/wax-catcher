@@ -1,4 +1,5 @@
 	var engine;
+	var game;
 	
 	async function loadNfts() {
 		let response = await fetch('https://chain.wax.io/v1/chain/get_table_rows', {
@@ -52,7 +53,7 @@
 			}
 		};
 
-		var game = new Phaser.Game(config);
+		game = new Phaser.Game(config);
 		var score;
 		var maxScore;
 		var bottomLine;
@@ -147,5 +148,3 @@
 			engine.physics.add.collider(wax, ground, gameOver(wax), null, this);
 		}
 	}
-	
-	run();
