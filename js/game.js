@@ -6,8 +6,8 @@
 		var rect = canvas.getBoundingClientRect();
 		canvas.width = rect.width * dpr;
 		canvas.height = rect.height * dpr;
-		var ctx = canvas.getContext('2d') || canvas.getContext('webgl');
-		ctx.scale(dpr, dpr);
+		//var ctx = canvas.getContext('2d') || canvas.getContext('webgl');
+		//ctx.scale(dpr, dpr);
 	}
 	
 	async function loadNfts() {
