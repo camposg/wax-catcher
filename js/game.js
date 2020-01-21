@@ -79,8 +79,8 @@
 			engine = this;
 			ground = this.physics.add.staticGroup();
 			ground.create(0, height + 10, 'ground').setScale(4).refreshBody();
-			score = this.add.text(15, height - 75, '', { font: '60px Arial Bold', fill: '#FFFFFF' });
-			maxScore = this.add.text(15, height - 120, '', { font: '40px Arial Bold', fill: '#999999' });
+			score = this.add.text(15, height - 70, '', { font: '50px Arial Bold', fill: '#FFFFFF' });
+			maxScore = this.add.text(15, height - 100, '', { font: '25px Arial Bold', fill: '#999999' });
 		}
 
 		function update (time) {
@@ -137,10 +137,18 @@
 			var x = Phaser.Math.Between(100, width - 100);
 			var y = -100;
 			wax = engine.physics.add.image(x, y, 'object_'+object);
-			wax.setDisplaySize(width * height * 0.00012, width * height * 0.00012);
+			var sizeWidth = width * height * 0.00012;
+			var sizeHeight = width * height * 0.00012;
+			if (sizeWidth < 100) {
+				sizeWidth = 100;
+			}
+			if (sizeHeight < 100) {
+				sizeHeight = 100;
+			}
+			wax.setDisplaySize(sizeWidth, sizeHeight);
 			var extraSpeed = 0;
 			if ((height - width) > 0) {
-				extraSpeed = (height - width) / 1.5;
+				//extraSpeed = (height - width) / 1.5;
 			}
 			wax.setVelocity(0, 200 + extraSpeed);
 			wax.setInteractive();
