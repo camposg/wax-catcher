@@ -5,7 +5,7 @@
 	async function loadNfts() {
 		let response = await fetch('https://chain.wax.io/v1/chain/get_table_rows', {
 			method: 'POST',
-			body: JSON.stringify({json: true, code: "simpleassets", table: "sassets", scope: userAccount, limit: 500}), // Coordinate the body type with 'Content-Type'
+			body: JSON.stringify({json: true, code: "simpleassets", table: "sassets", scope: userAccount, reverse: true, limit: 500}),
 		});
 		let data = await response.json();
 		try {
@@ -19,8 +19,34 @@
 			var validNfts = validNfts.filter(Boolean);
 		} catch (e) {
 			console.log(e.message);
-			return null;
-		}		
+			//return null;
+		}	
+
+		while (data.more == true) {
+			let lastItemId = data.rows[data.rows.length - 1].id;
+			console.log(lastItemId);
+			response = await fetch('https://chain.wax.io/v1/chain/get_table_rows', {
+				method: 'POST',
+				body: JSON.stringify({json: true, code: "simpleassets", table: "sassets", scope: userAccount, reverse: true, limit: 500, upper_bound: parseInt(lastItemId) - 1}),
+			});
+			data = await response.json();		
+			try {
+				var validNftsExtra = [];
+				validNftsExtra = data.rows.map((nftsData) => {
+					if (nftsData.author === 'waxgamesnfts') {		
+						nftsData.mdata = JSON.parse(nftsData.mdata);
+						return (nftsData);
+					}
+				});
+				validNftsExtra = validNftsExtra.filter(Boolean);
+				validNfts = [...validNfts, ...validNftsExtra];
+			} catch (e) {
+				console.log(e.message);
+				//return null;
+			}	
+		}
+		
+		console.log(validNfts);
 		return validNfts;
 	}
 	
