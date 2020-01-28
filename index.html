@@ -16,7 +16,7 @@
 			height: 100%;
 			margin: 0;
 			padding: 0;
-			background-color: black;
+			background-color: #06050a;
 			display: flex;
 			overflow: hidden;
 			font-family: sans-serif !important;
@@ -28,7 +28,7 @@
 		}
 		.main_menu_button {
 			border: 2px solid #eee;
-			background-color: #121212;
+			background-color: #12121287;
 			border-radius: 5px;
 			color: #eee;
 			padding: 6px 20px;
@@ -38,19 +38,21 @@
 			display: inline-block;
 			text-decoration: none;
 			margin-bottom: 12px;
+			transition: all 0.2s;
 		}
 		.main_menu_button:hover {
-			background-color: #000;
+			background-color: #0a090dc2;
 		}
 		.main_menu {
 			margin: auto;
 			width: 300px;
 			min-height: 400px;
-			background-color: #121212;
+			background-color: #0a0e17;
 			border-radius: 10px;
 			vertical-align: middle;
 			text-align: center;	
 			padding: 10px 2px;		
+			transition: all 0.4s;
 		}		
 		#login_info {
 			color: #ccc;
@@ -81,6 +83,17 @@
 			display: none;
 			cursor: pointer;
 		}
+		#loading {
+			position: absolute;			
+			align-items: center;
+			justify-content: center;
+			color: #fafafa;
+			top: 0;
+			bottom: 0;
+			right: 0;
+			left: 0;		
+			display: none;
+		}
 		@media (max-width: 800px) {
 			.main_menu {
 				width: 90%;	
@@ -98,7 +111,7 @@
 </head>
 
 <body>
-	<div id="main_menu" class="main_menu">
+	<div id="main_menu" class="main_menu" style="opacity: 0;">
 		<h1 class="main_title">WAX Catcher</h1>
 		<div id="login_info"><a id="login_button" onclick="login()">Login with WAX Cloud Wallet</a> to use your skins!</div>
 		<div id="user_info"></div>
@@ -107,15 +120,16 @@
 		<a class="main_menu_button" href="https://wax.simplemarket.io/products?skip=0&limit=30&authors=waxgamesnfts" target="_blank">Buy Skins</a>
 		<a class="main_menu_button" href="#">About</a>
 	</div>
+	<div id="loading">Loading...</div>
 	<div><img id="back_button" onclick="unloadGame()" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjwhRE9DVFlQRSBzdmcgIFBVQkxJQyAnLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4nICAnaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkJz48c3ZnIGhlaWdodD0iNTEycHgiIGlkPSJMYXllcl8xIiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCA1MTIgNTEyOyIgdmVyc2lvbj0iMS4xIiB2aWV3Qm94PSIwIDAgNTEyIDUxMiIgd2lkdGg9IjUxMnB4IiB4bWw6c3BhY2U9InByZXNlcnZlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIj48cG9seWdvbiBwb2ludHM9IjM1MiwxMjguNCAzMTkuNyw5NiAxNjAsMjU2IDE2MCwyNTYgMTYwLDI1NiAzMTkuNyw0MTYgMzUyLDM4My42IDIyNC43LDI1NiAiLz48L3N2Zz4="/></div>
-	</body>
+</body>
 
 <script>
 	const wax = new waxjs.WaxJS('https://wax.greymass.com', null, null, false);
 	let userAccount = '';
 	
 	preLogin();
-
+	
 	async function preLogin() {
 		var isAutoLoginAvailable = await wax.isAutoLoginAvailable();
 		if (isAutoLoginAvailable) {
@@ -124,6 +138,7 @@
 			document.getElementById("login_info").style.display = "block";
 			document.getElementById("user_info").style.display = "none";
 		}
+		document.getElementById("main_menu").style.opacity = "1";	
 	}
 
 	async function login() {
@@ -138,6 +153,7 @@
 	}
   
 	function loadGame() {
+		document.getElementById("loading").style.display = "flex";	
 		run();
 		document.getElementById("main_menu").style.display = "none";
 		document.getElementById("back_button").style.display = "flex";	

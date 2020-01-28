@@ -18,13 +18,11 @@
 			});
 			var validNfts = validNfts.filter(Boolean);
 		} catch (e) {
-			console.log(e.message);
-			//return null;
+			//console.log(e.message);
 		}	
 
 		while (data.more == true) {
 			let lastItemId = data.rows[data.rows.length - 1].id;
-			console.log(lastItemId);
 			response = await fetch('https://chain.wax.io/v1/chain/get_table_rows', {
 				method: 'POST',
 				body: JSON.stringify({json: true, code: "simpleassets", table: "sassets", scope: userAccount, reverse: true, limit: 500, upper_bound: parseInt(lastItemId) - 1}),
@@ -41,12 +39,12 @@
 				validNftsExtra = validNftsExtra.filter(Boolean);
 				validNfts = [...validNfts, ...validNftsExtra];
 			} catch (e) {
-				console.log(e.message);
-				//return null;
+				//console.log(e.message);
 			}	
 		}
 		
-		console.log(validNfts);
+		document.getElementById("loading").style.display = "none";	
+		//console.log(validNfts);
 		return validNfts;
 	}
 	
@@ -80,14 +78,18 @@
 		};
 
 		game = new Phaser.Game(config);
-		var score;
-		var maxScore;
-		var bottomLine;
-		var lastSpawnTime = 0;
-		var spawnFrequency = 1000;
-		var waxCaught = 0;
-		var maxWaxCaught = 0;
-		var numberOfObjects = 1;
+		let score;
+		let maxScore;
+		let bottomLine;
+		let lastSpawnTime = 0;
+		let spawnFrequency = 1000;
+		let waxCaught = 0;
+		let maxWaxCaught = 0;
+		let numberOfObjects = 1;
+		let emitterBlue;
+		let emitterRed;
+		let caughtSound;
+		let gameOverSound;
 
 		function preload () {	
 			if (userNfts && userNfts.length > 0) {
@@ -98,7 +100,21 @@
 			} else {
 				this.load.image('object_1', 'assets/wax_sticker.png');
 			}				
-			this.load.image('ground', 'assets/ground.png');		
+			this.load.image('ground', 'assets/ground.png');			
+			this.cameras.main.backgroundColor.setTo(6,5,10);		
+			
+			// particles
+			this.load.image('spark0', 'assets/particles/blue.png');
+			this.load.image('spark1', 'assets/particles/red.png');
+			
+			// sound
+			this.load.audio('caughtSound', 'assets/audio/blaster.mp3', {
+				instances: 1
+			});
+			this.load.audio('gameOverSound', 'assets/audio/explosion.mp3', {
+				instances: 1
+			});
+			
 		}
 
 		function create () {
@@ -107,6 +123,34 @@
 			ground.create(0, height + 10, 'ground').setScale(4).refreshBody();
 			score = this.add.text(15, height - 70, '', { font: '50px Arial Bold', fill: '#FFFFFF' });
 			maxScore = this.add.text(15, height - 100, '', { font: '25px Arial Bold', fill: '#999999' });
+			caughtSound = this.sound.add('caughtSound', {volume: 0.03});		
+			gameOverSound = this.sound.add('gameOverSound', {volume: 0.03});
+			emitterBlue = this.add.particles('spark0').createEmitter({
+				x: 0,
+				y: 0,
+				speed: { min: -800, max: 800 },
+				angle: { min: 0, max: 360 },
+				scale: { start: 0.5, end: 0 },
+				blendMode: 'SCREEN',
+				//active: false,
+				lifespan: 600,
+				gravityY: 800,
+				visible: false
+			});
+			emitterRed = this.add.particles('spark1').createEmitter({
+				x: 0,
+				y: 0,
+				speed: { min: -800, max: 800 },
+				angle: { min: 0, max: 360 },
+				scale: { start: 0.3, end: 0 },
+				blendMode: 'SCREEN',
+				//active: false,
+				lifespan: 300,
+				gravityY: 800,
+				visible: false
+			});
+			emitterBlue.explode();
+			emitterRed.explode();
 		}
 
 		function update (time) {
@@ -131,11 +175,18 @@
 		}
 
 		function onCaught(wax) {
-			return function () {
-				wax.setTint(0xffaaaa);
+			return function () {	
+				caughtSound.play();
+				emitterBlue.setPosition(wax.x, wax.y);
+				emitterRed.setPosition(wax.x, wax.y);			
+				emitterBlue.explode(30);
+				emitterRed.explode(30);
+				emitterBlue.visible = true;
+				emitterRed.visible = true;
+				wax.setScale(0.23);
 				wax.setVelocity(0, 0);
 				waxCaught++;
-				engine.time.delayedCall(250, function (wax) {
+				engine.time.delayedCall(160, function (wax) {
 					wax.destroy();
 				}, [wax], this);
 			}
@@ -143,6 +194,7 @@
 
 		function gameOver(wax) {
 			return function () {
+				gameOverSound.play();
 				wax.setTint(0xdd5555);	
 				engine.scene.pause();	
 				engine.scene.resume();
