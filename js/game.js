@@ -82,7 +82,7 @@
 		let maxScore;
 		let bottomLine;
 		let lastSpawnTime = 0;
-		let spawnFrequency = 100;
+		let spawnFrequency = 1000;
 		let waxCaught = 0;	
 		let maxWaxCaught = 0;
 		let waxSpawned = 0;
