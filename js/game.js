@@ -82,9 +82,10 @@
 		let maxScore;
 		let bottomLine;
 		let lastSpawnTime = 0;
-		let spawnFrequency = 1000;
-		let waxCaught = 0;
+		let spawnFrequency = 100;
+		let waxCaught = 0;	
 		let maxWaxCaught = 0;
+		let waxSpawned = 0;
 		let numberOfObjects = 1;
 		let emitterBlue;
 		let emitterRed;
@@ -183,7 +184,6 @@
 				emitterRed.explode(30);
 				emitterBlue.visible = true;
 				emitterRed.visible = true;
-				wax.setScale(0.23);
 				wax.setVelocity(0, 0);
 				waxCaught++;
 				engine.time.delayedCall(160, function (wax) {
@@ -210,6 +210,7 @@
 		}
 
 		function spawnWax() {
+			waxSpawned++;
 			var wax;
 			var object = Phaser.Math.Between(1, numberOfObjects);
 			var x = Phaser.Math.Between(100, width - 100);
@@ -224,6 +225,7 @@
 				sizeHeight = 100;
 			}
 			wax.setDisplaySize(sizeWidth, sizeHeight);
+			wax.setDepth(99999999999 - waxSpawned);
 			var extraSpeed = 0;
 			if ((height - width) > 0) {
 				extraSpeed = (height - width) / 10;
